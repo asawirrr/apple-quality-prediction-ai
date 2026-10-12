@@ -1,0 +1,545 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="AI Apple Quality Classifier - Compare K-Nearest Neighbors (KNN) vs Gaussian Naive Bayes with interactive real-time predictions and analytics.">
+    <meta name="keywords" content="Machine Learning, Apple Quality, KNN, Naive Bayes, Scikit-learn, AI Project">
+    <title>Apple Quality AI • Machine Learning Classifier</title>
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Custom Stylesheet -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <div class="app-background">
+        <div class="glow-orb orb-1"></div>
+        <div class="glow-orb orb-2"></div>
+        <div class="glow-orb orb-3"></div>
+    </div>
+
+    <header class="app-header">
+        <div class="container header-container">
+            <div class="brand">
+                <div class="brand-icon">
+                    <span class="brand-apple">🍎</span>
+                    <span class="brand-sparkle">✦</span>
+                </div>
+                <div class="brand-text">
+                    <span class="brand-badge">AI CLASSIFICATION ENGINE</span>
+                    <h1 class="brand-title">Apple Quality Intelligence</h1>
+                </div>
+            </div>
+
+            <nav class="nav-tabs" role="tablist">
+                <button class="tab-btn active" id="tab-btn-predictor" data-tab="predictor" role="tab" aria-selected="true">
+                    <svg class="tab-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"/></svg>
+                    Live Predictor
+                </button>
+                <button class="tab-btn" id="tab-btn-benchmark" data-tab="benchmark" role="tab" aria-selected="false">
+                    <svg class="tab-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 20V10M12 20V4M6 20v-6"/></svg>
+                    Model Benchmarks
+                </button>
+                <button class="tab-btn" id="tab-btn-insights" data-tab="insights" role="tab" aria-selected="false">
+                    <svg class="tab-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/></svg>
+                    Dataset & EDA
+                </button>
+                <button class="tab-btn" id="tab-btn-viva" data-tab="viva" role="tab" aria-selected="false">
+                    <svg class="tab-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>
+                    Viva & Theory
+                </button>
+            </nav>
+        </div>
+    </header>
+
+    <main class="main-content container">
+        <!-- ================= TAB 1: LIVE PREDICTOR ================= -->
+        <section id="tab-predictor" class="tab-pane active" role="tabpanel">
+            <div class="predictor-grid">
+                <!-- Left: Controls & Sliders -->
+                <div class="panel glass-card controls-card">
+                    <div class="card-header">
+                        <div class="header-titles">
+                            <span class="section-tag">INPUT PARAMETERS</span>
+                            <h2 class="card-title">Sensory & Physical Attributes</h2>
+                        </div>
+                    </div>
+
+                    <!-- Presets Bar -->
+                    <div class="presets-section">
+                        <span class="presets-label">Quick Presets:</span>
+                        <div class="preset-buttons">
+                            <button type="button" class="preset-btn" id="btn-preset-premium" title="Load High Quality Apple">
+                                <span class="preset-icon">🍏</span> Crisp & Sweet (Good)
+                            </button>
+                            <button type="button" class="preset-btn" id="btn-preset-spoiled" title="Load Poor Quality Apple">
+                                <span class="preset-icon">🍂</span> Overripe Soft (Bad)
+                            </button>
+                            <button type="button" class="preset-btn outline" id="btn-preset-random" title="Fetch random sample from real dataset">
+                                <span class="preset-icon">🎲</span> Random Sample
+                            </button>
+                            <button type="button" class="preset-btn outline-icon" id="btn-reset-sliders" title="Reset all features to zero">
+                                ↺ Reset
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Sliders Form -->
+                    <form id="prediction-form" class="feature-form">
+                        <div class="feature-sliders-list">
+                            <!-- Size -->
+                            <div class="slider-group">
+                                <div class="slider-meta">
+                                    <label for="feature-size" class="feature-label">
+                                        <span class="feature-dot dot-cyan"></span>
+                                        <span class="label-name">Size</span>
+                                        <span class="label-desc">Fruit caliber & volume</span>
+                                    </label>
+                                    <div class="value-badge" id="val-badge-size">-0.50</div>
+                                </div>
+                                <input type="range" class="feature-slider" id="feature-size" min="-6.0" max="6.0" step="0.1" value="-0.5">
+                                <div class="slider-ticks"><span>Small (-6.0)</span><span>Average (0.0)</span><span>Large (+6.0)</span></div>
+                            </div>
+
+                            <!-- Weight -->
+                            <div class="slider-group">
+                                <div class="slider-meta">
+                                    <label for="feature-weight" class="feature-label">
+                                        <span class="feature-dot dot-blue"></span>
+                                        <span class="label-name">Weight</span>
+                                        <span class="label-desc">Fruit mass</span>
+                                    </label>
+                                    <div class="value-badge" id="val-badge-weight">-0.50</div>
+                                </div>
+                                <input type="range" class="feature-slider" id="feature-weight" min="-6.0" max="6.0" step="0.1" value="-0.5">
+                                <div class="slider-ticks"><span>Light (-6.0)</span><span>Average (0.0)</span><span>Heavy (+6.0)</span></div>
+                            </div>
+
+                            <!-- Sweetness -->
+                            <div class="slider-group">
+                                <div class="slider-meta">
+                                    <label for="feature-sweetness" class="feature-label">
+                                        <span class="feature-dot dot-emerald"></span>
+                                        <span class="label-name">Sweetness</span>
+                                        <span class="label-desc">Sugar / Brix content</span>
+                                    </label>
+                                    <div class="value-badge" id="val-badge-sweetness">2.50</div>
+                                </div>
+                                <input type="range" class="feature-slider" id="feature-sweetness" min="-6.0" max="6.0" step="0.1" value="2.5">
+                                <div class="slider-ticks"><span>Low (-6.0)</span><span>Standard (0.0)</span><span>Very Sweet (+6.0)</span></div>
+                            </div>
+
+                            <!-- Crunchiness -->
+                            <div class="slider-group">
+                                <div class="slider-meta">
+                                    <label for="feature-crunchiness" class="feature-label">
+                                        <span class="feature-dot dot-amber"></span>
+                                        <span class="label-name">Crunchiness</span>
+                                        <span class="label-desc">Firmness & bite crispness</span>
+                                    </label>
+                                    <div class="value-badge" id="val-badge-crunchiness">1.20</div>
+                                </div>
+                                <input type="range" class="feature-slider" id="feature-crunchiness" min="-6.0" max="6.0" step="0.1" value="1.2">
+                                <div class="slider-ticks"><span>Soft (-6.0)</span><span>Medium (0.0)</span><span>Extra Crisp (+6.0)</span></div>
+                            </div>
+
+                            <!-- Juiciness -->
+                            <div class="slider-group">
+                                <div class="slider-meta">
+                                    <label for="feature-juiciness" class="feature-label">
+                                        <span class="feature-dot dot-purple"></span>
+                                        <span class="label-name">Juiciness</span>
+                                        <span class="label-desc">Moisture & sap density</span>
+                                    </label>
+                                    <div class="value-badge" id="val-badge-juiciness">2.00</div>
+                                </div>
+                                <input type="range" class="feature-slider" id="feature-juiciness" min="-6.0" max="6.0" step="0.1" value="2.0">
+                                <div class="slider-ticks"><span>Dry (-6.0)</span><span>Moderate (0.0)</span><span>Succulent (+6.0)</span></div>
+                            </div>
+
+                            <!-- Ripeness -->
+                            <div class="slider-group">
+                                <div class="slider-meta">
+                                    <label for="feature-ripeness" class="feature-label">
+                                        <span class="feature-dot dot-pink"></span>
+                                        <span class="label-name">Ripeness</span>
+                                        <span class="label-desc">Maturity index</span>
+                                    </label>
+                                    <div class="value-badge" id="val-badge-ripeness">-0.30</div>
+                                </div>
+                                <input type="range" class="feature-slider" id="feature-ripeness" min="-6.0" max="6.0" step="0.1" value="-0.3">
+                                <div class="slider-ticks"><span>Unripe (-6.0)</span><span>Optimal (0.0)</span><span>Overripe (+6.0)</span></div>
+                            </div>
+
+                            <!-- Acidity -->
+                            <div class="slider-group">
+                                <div class="slider-meta">
+                                    <label for="feature-acidity" class="feature-label">
+                                        <span class="feature-dot dot-indigo"></span>
+                                        <span class="label-name">Acidity</span>
+                                        <span class="label-desc">Sourness / tartness</span>
+                                    </label>
+                                    <div class="value-badge" id="val-badge-acidity">-0.80</div>
+                                </div>
+                                <input type="range" class="feature-slider" id="feature-acidity" min="-6.0" max="6.0" step="0.1" value="-0.8">
+                                <div class="slider-ticks"><span>Mild (-6.0)</span><span>Balanced (0.0)</span><span>Sharp/Tart (+6.0)</span></div>
+                            </div>
+                        </div>
+
+                        <!-- Model Selection Bar -->
+                        <div class="model-select-wrapper">
+                            <span class="model-select-title">Classification Engine:</span>
+                            <div class="model-pills" role="radiogroup">
+                                <label class="model-pill active">
+                                    <input type="radio" name="model-choice" value="both" checked>
+                                    <span class="pill-text">Side-by-Side (KNN + Naive Bayes)</span>
+                                </label>
+                                <label class="model-pill">
+                                    <input type="radio" name="model-choice" value="knn">
+                                    <span class="pill-text">KNN Only (87.5% Acc)</span>
+                                </label>
+                                <label class="model-pill">
+                                    <input type="radio" name="model-choice" value="naive_bayes">
+                                    <span class="pill-text">Naive Bayes Only (74% Acc)</span>
+                                </label>
+                            </div>
+                        </div>
+
+                        <button type="submit" id="btn-predict-submit" class="submit-predict-btn">
+                            <span class="btn-shine"></span>
+                            <span class="btn-content">
+                                <span class="btn-text">Predict Apple Quality</span>
+                                <span class="btn-arrow">→</span>
+                            </span>
+                        </button>
+                    </form>
+                </div>
+
+                <!-- Right: Output Card & Realtime Intel -->
+                <div class="panel glass-card output-card">
+                    <div class="card-header">
+                        <div class="header-titles">
+                            <span class="section-tag">INFERENCE RESULTS</span>
+                            <h2 class="card-title">Prediction Intelligence</h2>
+                        </div>
+                        <div class="live-status-pill">
+                            <span class="live-ping"></span> Real-time
+                        </div>
+                    </div>
+
+                    <!-- Main Hero Decision -->
+                    <div class="decision-hero" id="decision-hero">
+                        <div class="decision-aura"></div>
+                        <div class="decision-badge" id="decision-badge">
+                            <div class="badge-icon-wrapper" id="badge-icon-wrapper">
+                                <span id="badge-icon" class="badge-icon">🍏</span>
+                            </div>
+                            <div class="badge-content">
+                                <span class="badge-supertitle" id="badge-supertitle">CONSENSUS VERDICT</span>
+                                <h3 class="badge-title" id="badge-title">GOOD QUALITY</h3>
+                                <p class="badge-subtitle" id="badge-subtitle">Crisp, sweet, and optimal sensory profile.</p>
+                            </div>
+                        </div>
+
+                        <!-- Confidence Bar -->
+                        <div class="confidence-container">
+                            <div class="conf-header">
+                                <span class="conf-label">Confidence Score</span>
+                                <span class="conf-val" id="primary-conf-value">91.4%</span>
+                            </div>
+                            <div class="conf-track">
+                                <div class="conf-fill" id="conf-fill-bar" style="width: 91.4%;"></div>
+                            </div>
+                            <div class="prob-breakdown">
+                                <span class="prob-item good-prob"><span class="prob-dot"></span> Good: <strong id="good-prob-text">91.4%</strong></span>
+                                <span class="prob-item bad-prob"><span class="prob-dot"></span> Bad: <strong id="bad-prob-text">8.6%</strong></span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Side-by-Side Model Cards -->
+                    <div class="models-duel-section">
+                        <h4 class="section-subtitle">Individual Model Predictions</h4>
+                        <div class="duel-cards">
+                            <!-- KNN Box -->
+                            <div class="duel-card" id="knn-duel-card">
+                                <div class="duel-header">
+                                    <div class="duel-title-wrap">
+                                        <span class="duel-badge knn-badge">RECOMMENDED</span>
+                                        <h5 class="duel-name">K-Nearest Neighbors</h5>
+                                    </div>
+                                    <span class="duel-overall-acc">87.5% Acc</span>
+                                </div>
+                                <div class="duel-result">
+                                    <span class="duel-pred-pill" id="knn-pred-pill">GOOD</span>
+                                    <span class="duel-conf" id="knn-conf-label">92.0% Conf</span>
+                                </div>
+                                <div class="duel-bar">
+                                    <div class="duel-bar-fill" id="knn-bar-fill" style="width: 92%;"></div>
+                                </div>
+                            </div>
+
+                            <!-- Naive Bayes Box -->
+                            <div class="duel-card" id="nb-duel-card">
+                                <div class="duel-header">
+                                    <div class="duel-title-wrap">
+                                        <span class="duel-badge nb-badge">PROBABILISTIC</span>
+                                        <h5 class="duel-name">Gaussian Naive Bayes</h5>
+                                    </div>
+                                    <span class="duel-overall-acc">74.0% Acc</span>
+                                </div>
+                                <div class="duel-result">
+                                    <span class="duel-pred-pill" id="nb-pred-pill">GOOD</span>
+                                    <span class="duel-conf" id="nb-conf-label">84.5% Conf</span>
+                                </div>
+                                <div class="duel-bar">
+                                    <div class="duel-bar-fill" id="nb-bar-fill" style="width: 84%;"></div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Agreement Banner -->
+                        <div class="agreement-banner" id="agreement-banner">
+                            <span class="agreement-icon">✓</span>
+                            <span class="agreement-text" id="agreement-text">Both models agree on Good Quality classification.</span>
+                        </div>
+                    </div>
+
+                    <!-- Sensory Profile Highlights -->
+                    <div class="profile-summary-section">
+                        <h4 class="section-subtitle">Sensory Profile Breakdown</h4>
+                        <div class="profile-tags" id="profile-tags">
+                            <span class="profile-tag tag-sweet">🍯 High Sweetness</span>
+                            <span class="profile-tag tag-crisp">⚡ Crisp Texture</span>
+                            <span class="profile-tag tag-fresh">💧 Juicy Flesh</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ================= TAB 2: MODEL BENCHMARKS ================= -->
+        <section id="tab-benchmark" class="tab-pane" role="tabpanel">
+            <div class="benchmark-container">
+                <!-- KPI Metric Cards -->
+                <div class="metrics-kpi-grid">
+                    <div class="kpi-card highlight-kpi">
+                        <div class="kpi-icon">🏆</div>
+                        <div class="kpi-body">
+                            <span class="kpi-label">Top Performer</span>
+                            <h3 class="kpi-title">K-Nearest Neighbors</h3>
+                            <span class="kpi-stat">87.50% Test Accuracy</span>
+                        </div>
+                    </div>
+                    <div class="kpi-card">
+                        <div class="kpi-icon">🎯</div>
+                        <div class="kpi-body">
+                            <span class="kpi-label">KNN Precision</span>
+                            <h3 class="kpi-title">86.80%</h3>
+                            <span class="kpi-stat">High fidelity detection</span>
+                        </div>
+                    </div>
+                    <div class="kpi-card">
+                        <div class="kpi-icon">📈</div>
+                        <div class="kpi-body">
+                            <span class="kpi-label">KNN ROC-AUC</span>
+                            <h3 class="kpi-title">94.36%</h3>
+                            <span class="kpi-stat">Separability power</span>
+                        </div>
+                    </div>
+                    <div class="kpi-card">
+                        <div class="kpi-icon">⚖️</div>
+                        <div class="kpi-body">
+                            <span class="kpi-label">GNB Baseline</span>
+                            <h3 class="kpi-title">74.00%</h3>
+                            <span class="kpi-stat">Gaussian Naive Bayes</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Comparison Table & Visual Plots -->
+                <div class="bench-visuals-grid">
+                    <!-- Left: Table & Insight -->
+                    <div class="panel glass-card">
+                        <span class="section-tag">EMPIRICAL COMPARISON</span>
+                        <h3 class="card-title">Test Set Evaluation Metrics</h3>
+                        <p class="section-p">Evaluated on stratified hold-out test set (800 samples, 20% test split).</p>
+                        
+                        <div class="table-responsive">
+                            <table class="benchmark-table">
+                                <thead>
+                                    <tr>
+                                        <th>Metric</th>
+                                        <th>KNN (k=5)</th>
+                                        <th>Gaussian NB</th>
+                                        <th>Variance</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td><strong>Accuracy</strong></td>
+                                        <td><span class="score-badge win">87.50%</span></td>
+                                        <td><span class="score-badge">74.00%</span></td>
+                                        <td class="diff-pos">+13.50%</td>
+                                    </tr>
+                                    <tr>
+                                        <td><strong>Precision (Good)</strong></td>
+                                        <td><span class="score-badge win">86.80%</span></td>
+                                        <td><span class="score-badge">73.59%</span></td>
+                                        <td class="diff-pos">+13.21%</td>
+                                    </tr>
+                                    <tr>
+                                        <td><strong>Recall (Good)</strong></td>
+                                        <td><span class="score-badge win">88.53%</span></td>
+                                        <td><span class="score-badge">75.06%</span></td>
+                                        <td class="diff-pos">+13.47%</td>
+                                    </tr>
+                                    <tr>
+                                        <td><strong>F1-Score</strong></td>
+                                        <td><span class="score-badge win">87.65%</span></td>
+                                        <td><span class="score-badge">74.32%</span></td>
+                                        <td class="diff-pos">+13.33%</td>
+                                    </tr>
+                                    <tr>
+                                        <td><strong>ROC-AUC</strong></td>
+                                        <td><span class="score-badge win">94.36%</span></td>
+                                        <td><span class="score-badge">83.05%</span></td>
+                                        <td class="diff-pos">+11.31%</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <!-- Architectural Deep-Dive Box -->
+                        <div class="deep-dive-box">
+                            <h4 class="deep-dive-title">💡 Why Does KNN Outperform Naive Bayes?</h4>
+                            <p class="deep-dive-text">
+                                <strong>1. Violation of Feature Independence:</strong> Naive Bayes assumes all features are conditionally independent given the class label. In reality, physical fruit features (e.g. Size & Weight, Sweetness & Ripeness) exhibit non-linear interactions.
+                            </p>
+                            <p class="deep-dive-text">
+                                <strong>2. Local Instance Neighborhoods:</strong> KNN is a non-parametric instance-based classifier. It makes no rigid assumptions about underlying probability distributions and adapts naturally to non-linear decision boundaries.
+                            </p>
+                        </div>
+                    </div>
+
+                    <!-- Right: Comparison Images -->
+                    <div class="panel glass-card">
+                        <span class="section-tag">VISUAL BENCHMARKS</span>
+                        <h3 class="card-title">Generated Charts</h3>
+                        <div class="chart-previews">
+                            <div class="chart-item">
+                                <h4 class="chart-title">KNN vs Naive Bayes Metric Comparison</h4>
+                                <img src="{{ url_for('static', filename='plots/model_comparison.png') }}" alt="Model Comparison Plot" class="plot-img">
+                            </div>
+                            <div class="chart-item">
+                                <h4 class="chart-title">Confusion Matrices (Test Set)</h4>
+                                <img src="{{ url_for('static', filename='plots/confusion_matrices.png') }}" alt="Confusion Matrices" class="plot-img">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ================= TAB 3: DATASET & EDA ================= -->
+        <section id="tab-insights" class="tab-pane" role="tabpanel">
+            <div class="insights-container">
+                <div class="panel glass-card">
+                    <span class="section-tag">DATASET EXPLORATION</span>
+                    <h3 class="card-title">Exploratory Data Analysis (EDA)</h3>
+                    <p class="section-p">The dataset comprises 4,000 carefully curated apple records with balanced binary labels (2,004 Good vs 1,996 Bad).</p>
+
+                    <div class="plots-duo-grid">
+                        <div class="eda-card">
+                            <h4 class="eda-card-title">Feature Correlations with Apple Quality</h4>
+                            <img src="{{ url_for('static', filename='plots/feature_correlations.png') }}" alt="Feature Correlations" class="plot-img">
+                            <p class="eda-caption">Notice Sweetness and Juiciness exhibit positive correlations with Good Quality, while extreme Acidity and Overripeness skew negative.</p>
+                        </div>
+                        <div class="eda-card">
+                            <h4 class="eda-card-title">Feature Density Distributions</h4>
+                            <img src="{{ url_for('static', filename='plots/feature_distributions.png') }}" alt="Feature Distributions" class="plot-img">
+                            <p class="eda-caption">Green distributions represent Good apples while Red denotes Bad apples across each normalized sensory metric.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ================= TAB 4: VIVA & THEORY ================= -->
+        <section id="tab-viva" class="tab-pane" role="tabpanel">
+            <div class="viva-container">
+                <div class="panel glass-card">
+                    <span class="section-tag">EXAM & PRESENTATION PREPARATION</span>
+                    <h3 class="card-title">Viva Interview Questions & Answers</h3>
+                    <p class="section-p">Quick reference guide tailored for your university / college presentation viva.</p>
+
+                    <div class="faq-accordion">
+                        <div class="faq-item">
+                            <button class="faq-question" type="button">
+                                <span>Q1: What is the primary objective of this project?</span>
+                                <span class="faq-arrow">▼</span>
+                            </button>
+                            <div class="faq-answer">
+                                <p><strong>Answer:</strong> The objective is to classify apples into two quality categories (<strong>Good</strong> vs <strong>Bad</strong>) using supervised machine learning algorithms based on 7 physical and sensory features (Size, Weight, Sweetness, Crunchiness, Juiciness, Ripeness, and Acidity).</p>
+                            </div>
+                        </div>
+
+                        <div class="faq-item">
+                            <button class="faq-question" type="button">
+                                <span>Q2: How does K-Nearest Neighbors (KNN) work, and why k=5?</span>
+                                <span class="faq-arrow">▼</span>
+                            </button>
+                            <div class="faq-answer">
+                                <p><strong>Answer:</strong> KNN is an instance-based, non-parametric algorithm. When a new apple data point is provided, KNN calculates Euclidean distance to all training samples, finds the <em>k</em> closest neighbors, and assigns the majority class. We chose <strong>k=5</strong> (an odd number) to prevent ties in binary classification and achieve optimal bias-variance tradeoff.</p>
+                            </div>
+                        </div>
+
+                        <div class="faq-item">
+                            <button class="faq-question" type="button">
+                                <span>Q3: Why was Feature Scaling (StandardScaler) applied?</span>
+                                <span class="faq-arrow">▼</span>
+                            </button>
+                            <div class="faq-answer">
+                                <p><strong>Answer:</strong> KNN relies strictly on distance calculation ($d = \sqrt{\sum (x_i - y_i)^2}$). If features have unequal ranges or variances, variables with larger magnitudes would overpower the distance formula. <code>StandardScaler</code> standardizes features to zero mean and unit variance ($z = (x - \mu) / \sigma$), improving KNN accuracy to <strong>87.5% - 90%</strong>.</p>
+                            </div>
+                        </div>
+
+                        <div class="faq-item">
+                            <button class="faq-question" type="button">
+                                <span>Q4: Why does KNN outperform Naive Bayes on this dataset?</span>
+                                <span class="faq-arrow">▼</span>
+                            </button>
+                            <div class="faq-answer">
+                                <p><strong>Answer:</strong> Gaussian Naive Bayes applies Bayes' Theorem with the strong assumption of <em>conditional independence</em> among all features. In agricultural fruit metrics, attributes like sweetness, juiciness, and ripeness correlate naturally. KNN does not make this independence assumption and captures local multi-dimensional relationships.</p>
+                            </div>
+                        </div>
+
+                        <div class="faq-item">
+                            <button class="faq-question" type="button">
+                                <span>Q5: How did you evaluate the models?</span>
+                                <span class="faq-arrow">▼</span>
+                            </button>
+                            <div class="faq-answer">
+                                <p><strong>Answer:</strong> We performed an 80/20 train-test split with stratification. In addition to <strong>Accuracy</strong>, we measured <strong>Precision</strong> (minimizing false positives), <strong>Recall</strong> (capturing all good apples), <strong>F1-Score</strong> (harmonic mean), and <strong>ROC-AUC</strong> (94.36% for KNN vs 83.05% for Naive Bayes).</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer class="app-footer">
+        <div class="container footer-container">
+            <p>🍎 Apple Quality AI Classification Project • Built with Python, Scikit-learn & Vanilla CSS</p>
+        </div>
+    </footer>
+
+    <!-- Custom Script -->
+    <script src="{{ url_for('static', filename='app.js') }}"></script>
+</body>
+</html>
